@@ -18,6 +18,7 @@ public class TrajectoryImporter extends SessionBasedObject {
     }
 
     public Set<TrajectoryCoordinate> importCoordinates(final String timeFilePath, final String coordinateFilePath, final String thrusterFilePath) throws IOException {
+        logger().info("Importing data from: " + timeFilePath + ", " + coordinateFilePath + ", " + thrusterFilePath);
         final File timeFile = new File(timeFilePath);
         final File coordinateFile = new File(coordinateFilePath);
         final File thrusterFile = new File(thrusterFilePath);
@@ -33,6 +34,7 @@ public class TrajectoryImporter extends SessionBasedObject {
                     Double.parseDouble(coordinatesSplit[2]), Double.parseDouble(thrusterSplit[0]), Double.parseDouble(thrusterSplit[1]), Double.parseDouble(thrusterSplit[2]));
             coordinates.add(newCoordinate);
         }
+        logger().info("Imported " + times.size() + " datasets");
         return coordinates;
     }
 }
