@@ -18,24 +18,34 @@ import hochberger.utilities.timing.ToMilis;
 
 public class CommunicationHandler extends SessionBasedObject {
 
+    private final double landingX;
+    private final double landingY;
+    private final double landingZ;
+
     public CommunicationHandler(final BasicSession session) {
         super(session);
+
+        this.landingX = 170d;
+        this.landingY = 290d;
+        this.landingZ = 11d;
     }
 
     public void performCommunication(final Set<TrajectoryCoordinate> coordinates, final CoordinateNormalizer normalizer) {
         int i = 0;
         for (final TrajectoryCoordinate coordinate : coordinates) {
             logger().info("Step " + ++i + " of " + coordinates.size());
+            final double cameraX = this.landingX - (this.landingX - normalizer.normalize(coordinate.getxCoordinate()));
+            final double cameraY = this.landingY - (this.landingY - normalizer.normalize(coordinate.getyCoordinate()));
+            final double cameraZ = this.landingZ - (this.landingZ + normalizer.normalize(coordinate.getzCoordinate()));
+            System.err.println(cameraX + ", " + cameraY + ", " + cameraZ);
             try {
                 final Socket socket = new Socket();
                 socket.connect(new InetSocketAddress("127.0.0.1", 50001));
                 logger().info("starting communication with " + socket);
-                System.err.println(coordinate);
-                writeToSocket((170d - normalizer.normalize(coordinate.getxCoordinate())) + "," + (290d - normalizer.normalize(coordinate.getyCoordinate())) + ","
-                        + (11d + normalizer.normalize(coordinate.getzCoordinate())) + ";" + 0d + "," + 0d + "," + -1d + "?", socket);
-                // + coordinate.getxThruster() + "," + coordinate.getyThruster() + "," + coordinate.getzThruster() + "?",socket);
+                writeToSocket((this.landingX - normalizer.normalize(coordinate.getxCoordinate())) + "," + (this.landingY - normalizer.normalize(coordinate.getyCoordinate())) + ","
+                        + (this.landingZ + normalizer.normalize(coordinate.getzCoordinate())) + ";" + cameraX + "," + cameraY + "," + cameraZ + "?", socket);
                 final String message = readFromSocket(socket);
-                System.err.println(message);
+                logger().info("Received :" + message);
                 Sleeper.sleep(ToMilis.seconds(0.5));
             } catch (final UnknownHostException e) {
                 e.printStackTrace();
